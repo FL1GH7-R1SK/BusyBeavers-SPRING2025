@@ -3,7 +3,7 @@
 
 ## Project info
 
-A simple habit tracking application built for a class project.
+Habit tracking application that allows users to level up their life through a gamified application!
 
 ## How to use
 

@@ -52,7 +52,7 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">{getUserName()} Dashboard</h1>
-          {/* "Add Habit" button removed for the prototype */}
+          {/* "Add Habit" button in future*/}
         </div>
         
         {isLoading ? (
@@ -105,7 +105,7 @@ const Dashboard = () => {
         />
       )}
       
-      {/* AddHabitModal removed for the prototype */}
+      {/* AddHabitModal in future*/}
     </div>
   );
 };

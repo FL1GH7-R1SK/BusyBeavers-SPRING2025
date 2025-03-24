@@ -383,7 +383,6 @@ export const habitService = {
       console.log('Profile data:', profile);
       
       // Get habits to calculate highest streak and completed today
-      // THIS IS THE FIXED LINE - we're now using habitService.getUserHabits() instead of this.getUserHabits()
       const habits = await habitService.getUserHabits();
       
       const totalHabits = habits.length;
