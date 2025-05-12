@@ -165,9 +165,36 @@ export const habitService = {
     }
   },
   
-  // For the prototype, createHabit is disabled but kept for future implementation
+  // Enable createHabit to now actually create habits
   async createHabit(habit: Omit<Habit, 'id' | 'created_at' | 'user_id'>): Promise<Habit> {
-    throw new Error('Creating new habits is not available in this prototype');
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('User not authenticated');
+      
+      console.log('Creating habit for user:', user.user.id);
+      
+      // Insert the new habit into the database
+      const { data, error } = await supabase
+        .from('habits')
+        .insert([{ 
+          ...habit, 
+          user_id: user.user.id,
+          streak: 0
+        }])
+        .select()
+        .single();
+        
+      if (error) {
+        console.error('Error creating habit:', error);
+        throw error;
+      }
+      
+      console.log('Habit created successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('Error in createHabit:', error);
+      throw new Error('Failed to create habit. Please try again.');
+    }
   },
   
   // Update a habit - not needed for the prototype but kept for future
@@ -175,9 +202,49 @@ export const habitService = {
     throw new Error('Updating habits is not available in this prototype');
   },
   
-  // Delete a habit - not needed for the prototype but kept for future
+  // Delete a habit
   async deleteHabit(id: string): Promise<void> {
-    throw new Error('Deleting habits is not available in this prototype');
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('User not authenticated');
+      
+      console.log(`Deleting habit: ${id} for user: ${user.user.id}`);
+      
+      // Check if it's a predefined habit
+      if (id.startsWith('predefined-')) {
+        // For predefined habits, just throw an error since they can't be deleted
+        throw new Error('Predefined habits cannot be deleted');
+      }
+      
+      // First, delete all completions for this habit
+      const { error: completionsError } = await supabase
+        .from('habit_completions')
+        .delete()
+        .eq('habit_id', id)
+        .eq('user_id', user.user.id);
+        
+      if (completionsError) {
+        console.error('Error deleting habit completions:', completionsError);
+        throw completionsError;
+      }
+      
+      // Then delete the habit itself
+      const { error } = await supabase
+        .from('habits')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.user.id);
+        
+      if (error) {
+        console.error('Error deleting habit:', error);
+        throw error;
+      }
+      
+      console.log('Habit deleted successfully');
+    } catch (error) {
+      console.error('Error in deleteHabit:', error);
+      throw error;
+    }
   },
   
   // Mark a habit as completed - using local storage for predefined habits
@@ -383,6 +450,7 @@ export const habitService = {
       console.log('Profile data:', profile);
       
       // Get habits to calculate highest streak and completed today
+      // THIS IS THE FIXED LINE - we're now using habitService.getUserHabits() instead of this.getUserHabits()
       const habits = await habitService.getUserHabits();
       
       const totalHabits = habits.length;

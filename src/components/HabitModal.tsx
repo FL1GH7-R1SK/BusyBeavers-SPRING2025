@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Button } from './ui/button';
-import { X, Check } from 'lucide-react';
+import { X, Check, Trash2 } from 'lucide-react';
 import { HabitWithStats } from '@/lib/db-types';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 
 interface HabitModalProps {
   habit: HabitWithStats | null;
@@ -63,6 +64,37 @@ const HabitModal: React.FC<HabitModalProps> = ({
             </Button>
           )}
           
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="border-red-300 text-red-600 hover:bg-red-50"
+              >
+                <Trash2 size={16} className="mr-2" /> Delete Habit
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete the habit "{habit.name}" and all of its completion history.
+                  This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  className="bg-red-500 hover:bg-red-600 text-white"
+                  onClick={() => {
+                    onDelete(habit.id);
+                  }}
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          
           <Button 
             variant="outline"
             className="border-gray-300 text-gray-800"
@@ -70,8 +102,6 @@ const HabitModal: React.FC<HabitModalProps> = ({
           >
             Close
           </Button>
-          
-          {/* Delete button removed for the prototype */}
         </div>
       </div>
     </div>

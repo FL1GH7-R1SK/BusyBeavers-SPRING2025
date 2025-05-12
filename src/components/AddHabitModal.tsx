@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { X } from 'lucide-react';
-import { Habit, HabitCategory, Frequency } from '@/lib/db-types';
+import { Habit, HabitCategory } from '@/lib/db-types';
 
 interface AddHabitModalProps {
   isOpen: boolean;
@@ -25,8 +25,6 @@ const categories: HabitCategory[] = [
   'Other'
 ];
 
-const frequencies: Frequency[] = ['Daily', 'Weekly', 'Monthly'];
-
 const AddHabitModal: React.FC<AddHabitModalProps> = ({ 
   isOpen, 
   onClose, 
@@ -36,7 +34,6 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<HabitCategory>('Health');
-  const [frequency, setFrequency] = useState<Frequency>('Daily');
 
   if (!isOpen) return null;
 
@@ -47,14 +44,13 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({
       name,
       description,
       category,
-      frequency,
+      frequency: 'Daily', // Always set to Daily
     });
     
     // Reset form
     setName('');
     setDescription('');
     setCategory('Health');
-    setFrequency('Daily');
   };
 
   return (
@@ -89,7 +85,7 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({
             />
           </div>
           
-          <div className="mb-4">
+          <div className="mb-6">
             <Label htmlFor="category" className="mb-1 block">Category</Label>
             <select
               id="category"
@@ -100,21 +96,6 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="mb-6">
-            <Label htmlFor="frequency" className="mb-1 block">Frequency</Label>
-            <select
-              id="frequency"
-              value={frequency}
-              onChange={(e) => setFrequency(e.target.value as Frequency)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              required
-            >
-              {frequencies.map((freq) => (
-                <option key={freq} value={freq}>{freq}</option>
               ))}
             </select>
           </div>

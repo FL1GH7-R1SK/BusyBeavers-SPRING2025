@@ -7,9 +7,12 @@ import StatsSection from '../components/StatsSection';
 import { useHabits } from '@/hooks/useHabits';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
+import AddHabitModal from '@/components/AddHabitModal';
+import { PlusCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const {
     habits,
     stats,
@@ -20,13 +23,23 @@ const Dashboard = () => {
     completeHabit,
     incompleteHabit,
     deleteHabit,
+    createHabit,
+    isCreating,
   } = useHabits();
 
-  // Get user's first name or email
+  // State for managing add habit modal
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Get user's name or fall back to email if name not available
   const getUserName = () => {
     if (!user) return "My";
     
-    // Get name from email if no name is available
+    // Use user profile name if available
+    if (userProfile?.name) {
+      return `${userProfile.name}'s`;
+    }
+    
+    // Fall back to email if no name is available
     const email = user.email || "";
     const nameFromEmail = email.split('@')[0];
     
@@ -52,7 +65,6 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">{getUserName()} Dashboard</h1>
-          {/* "Add Habit" button in future*/}
         </div>
         
         {isLoading ? (
@@ -68,6 +80,17 @@ const Dashboard = () => {
               totalHabits={stats.totalHabits}
               completedToday={stats.completedToday}
             />
+            
+            {/* Add Habit button moved here, below stats section */}
+            <div className="flex justify-end mt-6 mb-6">
+              <Button
+                onClick={() => setIsAddModalOpen(true)}
+                className="bg-forest-green hover:bg-forest-dark text-white flex items-center gap-2"
+              >
+                <PlusCircle size={18} />
+                Add Habit
+              </Button>
+            </div>
             
             {habits.length === 0 ? (
               <div className="bg-white p-8 rounded-md shadow-sm mt-8 text-center">
@@ -105,7 +128,12 @@ const Dashboard = () => {
         />
       )}
       
-      {/* AddHabitModal in future*/}
+      <AddHabitModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddHabit={createHabit}
+        isLoading={isCreating}
+      />
     </div>
   );
 };

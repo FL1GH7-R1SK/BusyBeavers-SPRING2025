@@ -3,7 +3,7 @@
 
 ## Project info
 
-Habit tracking application that allows users to level up their life through a gamified application!
+A simple habit tracking application built for a class project.
 
 ## How to use
 
@@ -29,7 +29,7 @@ git clone https://github.com/FL1GH7-R1SK/test-beavers.git
 
 # Step 2: Navigate to the project directory
 ```sh
-cd test-beavers
+cd proto-beavers
 ```
 
 # Step 3: Install dependencies

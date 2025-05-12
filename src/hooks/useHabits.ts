@@ -1,11 +1,15 @@
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { habitService } from '@/services/habitService';
-import { HabitWithStats } from '@/lib/db-types';
+import { HabitWithStats, Habit } from '@/lib/db-types';
+import { useToast } from '@/hooks/use-toast';
 
 export const useHabits = () => {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [selectedHabit, setSelectedHabit] = useState<HabitWithStats | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   // Fetch habits - ensuring no sorting is applied to the returned data
   const { 
@@ -41,6 +45,11 @@ export const useHabits = () => {
     },
     onError: (error: any) => {
       console.error('Error completing habit:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete habit.",
+        variant: "destructive"
+      });
     },
   });
 
@@ -57,6 +66,59 @@ export const useHabits = () => {
     },
     onError: (error: any) => {
       console.error('Error marking habit as incomplete:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark habit as incomplete.",
+        variant: "destructive"
+      });
+    },
+  });
+
+  // Create habit mutation
+  const createHabitMutation = useMutation({
+    mutationFn: habitService.createHabit,
+    onSuccess: () => {
+      console.log('Habit created successfully, invalidating queries');
+      queryClient.invalidateQueries({ queryKey: ['habits'] });
+      queryClient.invalidateQueries({ queryKey: ['habitStats'] });
+      refetchStats();
+      setIsCreating(false);
+      toast({
+        title: "Success",
+        description: "Habit created successfully.",
+      });
+    },
+    onError: (error: any) => {
+      console.error('Error creating habit:', error);
+      setIsCreating(false);
+      toast({
+        title: "Error",
+        description: "Failed to create habit.",
+        variant: "destructive"
+      });
+    },
+  });
+
+  // Delete habit mutation
+  const deleteHabitMutation = useMutation({
+    mutationFn: habitService.deleteHabit,
+    onSuccess: () => {
+      console.log('Habit deleted successfully, invalidating queries');
+      queryClient.invalidateQueries({ queryKey: ['habits'] });
+      queryClient.invalidateQueries({ queryKey: ['habitStats'] });
+      refetchStats();
+      toast({
+        title: "Success",
+        description: "Habit deleted successfully.",
+      });
+    },
+    onError: (error: any) => {
+      console.error('Error deleting habit:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete habit.",
+        variant: "destructive"
+      });
     },
   });
 
@@ -85,14 +147,18 @@ export const useHabits = () => {
     closeModal();
   };
 
-  // For prototype, we're keeping these functions but they'll just log instead of using toasts
+  // Delete habit
   const deleteHabit = (id: string) => {
-    console.log('Feature not available: Deleting habits is not available in this prototype');
+    console.log('Deleting habit:', id);
+    deleteHabitMutation.mutate(id);
     closeModal();
   };
 
-  const createHabit = () => {
-    console.log('Feature not available: Creating habits is not available in this prototype');
+  // Create new habit
+  const createHabit = (habitData: Omit<Habit, 'id' | 'created_at' | 'user_id'>) => {
+    console.log('Creating new habit:', habitData);
+    setIsCreating(true);
+    createHabitMutation.mutate(habitData);
   };
 
   const isLoading = habitsLoading || statsLoading;
@@ -118,6 +184,6 @@ export const useHabits = () => {
     incompleteHabit,
     deleteHabit,
     createHabit,
-    isCreating: false,
+    isCreating,
   };
 };
