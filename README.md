@@ -24,12 +24,12 @@ To run the project locally:
 
 # Step 1: Clone the repository
 ```sh
-git clone https://github.com/FL1GH7-R1SK/test-beavers.git
+git clone https://github.com/FL1GH7-R1SK/Busy_Beavers-SPRING2025.git
 ```
 
 # Step 2: Navigate to the project directory
 ```sh
-cd proto-beavers
+cd Busy_Beavers-SPRING2025
 ```
 
 # Step 3: Install dependencies
